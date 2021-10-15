@@ -2,7 +2,7 @@ import torch
 import torch.utils.data as data
 
 
-def create_dataloader(features, targets, batch_size=128, train_size=0.8, test_size=0.2, validation_size=0):
+def create_dataloader(features, targets, batch_size, train_size=0.8, test_size=0.2, validation_size=0, seed=42):
     """Creates a Pytorch compatible dataset of type dataloader. Data is split
     in two or three batches consisting depending on the sizes of train, test
     and validation split.
@@ -14,18 +14,21 @@ def create_dataloader(features, targets, batch_size=128, train_size=0.8, test_si
     :param targets: self explanatory. Dimensions required to be compatible with
                     torch models, see above.
     :type targets: array_like
-    :param batch_size: Size of mini batches
+    :param batch_size: Size of mini batches.
     :type batch_size: int or
-    :param train_size: Size of training batch
+    :param train_size: Size of training batch. Defaults to 0.8.
     :type train_size: int or float
-    :param test_size: Size of test batch
+    :param test_size: Size of test batch. Defaults to 0.2.
     :type test_size: int or float
-    :param validation_size: Size of validation batch
+    :param validation_size: Size of validation batch. Defaults to 0.
     :type validation_size: int or float
+    :param seed: Seed for torch random split. Defaults to 42.
+    :type seed: int
 
     :returns data: Tuple of train, test (and validation) dataloaders
     :rtype: tuple of type torch.dataloader
     """
+    torch.manual_seed(seed)
     nf = features.shape[0]
     nt = targets.shape[0]
     assert nf == nt, 'Number of samples for targets and features does not match'
