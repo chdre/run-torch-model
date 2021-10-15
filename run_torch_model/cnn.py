@@ -64,21 +64,21 @@ class RunTorchCNN:
                                      all_targets) / torch.var(all_targets)
 
     def __call__(self):
-        r2score = torch.zeros(self.epochs).to(self.device)
-        loss_avg = torch.zeros(self.epochs).to(self.device)
-        r2score_test = torch.zeros(self.epochs).to(self.device)
-        loss_avg_test = torch.zeros(self.epochs).to(self.device)
+        self.r2score_train = torch.zeros(self.epochs).to(self.device)
+        self.loss_avg_train = torch.zeros(self.epochs).to(self.device)
+        self.r2score_test = torch.zeros(self.epochs).to(self.device)
+        self.loss_avg_test = torch.zeros(self.epochs).to(self.device)
 
         for i in range(self.epochs):
             self.training = True
             self.run_epoch(self.dataloader_train)
-            r2score[i] = self.r2
-            loss_avg[i] = self.loss_avg
+            self.r2score_train[i] = self.r2
+            self.loss_avg_train[i] = self.loss_avg
 
             self.training = False
             self.run_epoch(self.dataloader_test)
-            r2score_test[i] = self.r2
-            loss_avg_test[i] = self.loss_avg
+            self.r2score_test[i] = self.r2
+            self.loss_avg_test[i] = self.loss_avg
 
     def get_predictions(self):
         """Returns predictions. Function could return predictions from
@@ -87,9 +87,17 @@ class RunTorchCNN:
         """
         return self.predictions
 
+    def get_growing_loss(self):
+        """Returns train and test loss as a function of epochs."""
+        return self.loss_avg_train, self.loss_avg_test
+
+    def get_growing_r2(self):
+        """Returns train and test R2 score as a function of epochs."""
+        return self.r2score_train, self.r2score_test
+
     def get_average_loss(self):
         """Returns average loss."""
-        return self.loss_avg
+        return self.loss
 
     def get_r2score(self):
         """Returns R2 score."""
