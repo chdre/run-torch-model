@@ -1,4 +1,4 @@
 from . import cnn, tools
 
-create_dataset = tools.create_dataset
+create_dataloader = tools.create_dataloader
 RunTorchCNN = cnn.RunTorchCNN
