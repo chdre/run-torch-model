@@ -19,11 +19,12 @@ class RunTorchCNN:
     :type criterion: torch.nn.module.loss
     """
 
-    def __init__(self, model, epochs, optimizer, dataloaders, criterion):
+    def __init__(self, model, epochs, optimizer, dataloaders, criterion, verbose):
         self.epochs = epochs
         self.optimizer = optimizer
         self.model = model
         self.criterion = criterion
+        self.verbose = verbose
 
         self.device = torch.device(
             "cuda:0" if torch.cuda.is_available() else "cpu")
@@ -80,6 +81,13 @@ class RunTorchCNN:
             self.r2score_test[i] = self.r2
             self.loss_avg_test[i] = self.loss_avg
 
+            if self.verbose:
+                self.verbose_call(i)
+
+    def verbose_call(self, i):
+        print(
+            f'Epoch: {i + 1}/{self.epochs}  |  [TRAIN,TEST] -- loss: [{self.loss_avg_train[i].item():.2f}, {self.loss_avg_test[i].item():.2f}]   |  R2: [{self.r2score_train[i].item():.2f}, {self.loss_avg_test[i].item():.2f}]')
+
     def get_predictions(self):
         """Returns predictions. Function could return predictions from
         training, testing or validation, show care when using. Will most likely
@@ -89,11 +97,11 @@ class RunTorchCNN:
 
     def get_growing_loss(self):
         """Returns train and test loss as a function of epochs."""
-        return self.loss_avg_train, self.loss_avg_test
+        return self.loss_avg_train.detach().numpy(), self.loss_avg_test.detach().numpy()
 
     def get_growing_r2(self):
         """Returns train and test R2 score as a function of epochs."""
-        return self.r2score_train, self.r2score_test
+        return self.r2score_train.detach().numpy(), self.r2score_test.detach().numpy()
 
     def get_average_loss(self):
         """Returns average loss."""
