@@ -22,6 +22,9 @@ def create_dataloader(features, targets, batch_size=128, train_size=0.8, test_si
     :type test_size: float
     :param validation_size: Size of validation batch
     :type validation_size: float
+
+    :returns data: Tuple of train, test (and validation) dataloaders
+    :rtype: tuple of type torch.dataloader
     """
 
     x = torch.Tensor(features)
@@ -36,4 +39,9 @@ def create_dataloader(features, targets, batch_size=128, train_size=0.8, test_si
     dataloader_test = data.DataLoader(test, batch_size=batch_size)
     dataloader_valid = data.DataLoader(validation, batch_size=batch_size)
 
-    return dataloader_train, dataloader_test, dataloader_valid
+    if validation_size != 0:
+        return_data = (dataloader_train, dataloader_test, dataloader_valid)
+    else:
+        return_data = (dataloader_train, dataloader_test)
+
+    return return_data
