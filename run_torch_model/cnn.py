@@ -4,9 +4,19 @@ import torch.nn.functional as F
 import numpy as np
 
 
-class RunTorchModel:
-    """
+class RunTorchCNN:
+    """Simple package to execute training for a pytorch compatible CNN.
 
+    :param model: Pytorch model
+    :type model: torch.nn.Module
+    :param epochs: Number of epochs to train, i.e. number of training iterations
+    :type epochs: int
+    :param optimizer: Pytorch optimizer, e.g. torch.optim.Adam
+    :type optimizer: torch.optim
+    :param dataloaders: Datasets containing features and targets
+    :type dataloaders: tuple of type torch.data.dataloader
+    :param criterion: Loss function for NN
+    :type criterion: torch.nn.module.loss
     """
 
     def __init__(self, model, epochs, optimizer, dataloaders, criterion):
@@ -71,12 +81,18 @@ class RunTorchModel:
             loss_avg_test[i] = self.loss_avg
 
     def get_predictions(self):
+        """Returns predictions. Function could return predictions from
+        training, testing or validation, show care when using. Will most likely
+        be removed as it is kind of useless.
+        """
         return self.predictions
 
     def get_average_loss(self):
+        """Returns average loss."""
         return self.loss_avg
 
     def get_r2score(self):
+        """Returns R2 score."""
         return self.r2.item()
 
     def train(self, features, targets):
