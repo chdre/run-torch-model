@@ -97,7 +97,7 @@ class RunTorchCNN:
 
     def get_average_loss(self):
         """Returns average loss."""
-        return self.loss
+        return self.loss_avg
 
     def get_r2score(self):
         """Returns R2 score."""
