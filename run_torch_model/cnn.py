@@ -45,11 +45,12 @@ class RunTorchCNN:
             self.model.eval()
 
         _predictions = []
+        # In the case where device is GPU it is faster to work on GPU with Tensor than float on CPU
         total_loss = torch.zeros(1, device=torch.device(self.device))
 
-        for batch_idx, data_batch in enumerate(dataloader):
-            features, targets = data_batch[0].to(
-                self.device), data_batch[1].to(self.device)
+        for data_batch in dataloader:
+            features = data_batch[0].to(self.device)
+            targets = data_batch[1].to(self.device)
 
             if self.training:
                 self.train(features, targets)
@@ -84,9 +85,39 @@ class RunTorchCNN:
             if self.verbose:
                 self.verbose_call(i)
 
+    def train(self, features, targets):
+        """Train run for model.
+
+        :param features: self explanatory
+        :type features: torch.Tensor
+        :param targets: self explanatory
+        :type targets: torch.Tensor
+        """
+        self.batch_predictions = self.model(features)
+        self.batch_loss = self.criterion(self.batch_predictions, targets)
+
+        self.optimizer.zero_grad()
+        # below is ???
+        # for param in self.model.parameters():
+        #     param.grad = None
+        self.batch_loss.backward()
+        self.optimizer.step()
+
+    def mtest(self, features, targets):
+        """Testing run for model.
+
+        :param features: self explanatory
+        :type features: torch.Tensor
+        :param targets: self explanatory
+        :type targets: torch.Tensor
+        """
+        with torch.no_grad():
+            self.batch_predictions = self.model(features)
+            self.batch_loss = self.criterion(self.batch_predictions, targets)
+
     def verbose_call(self, i):
         print(
-            f'Epoch: {i + 1}/{self.epochs}  |  [TRAIN,TEST] -- loss: [{self.loss_avg_train[i].item():.2f}, {self.loss_avg_test[i].item():.2f}]   |  R2: [{self.r2score_train[i].item():.2f}, {self.loss_avg_test[i].item():.2f}]')
+            f'Epoch: {i + 1}/{self.epochs}  |  [TRAIN,TEST] -- loss: [{self.loss_avg_train[i].item():.2f}, {self.loss_avg_test[i].item():.2f}]   |  R2: [{self.r2score_train[i].item():.2f}, {self.r2score_test[i].item():.2f}]')
 
     def get_predictions(self):
         """Returns predictions. Function could return predictions from
@@ -111,36 +142,6 @@ class RunTorchCNN:
         """Returns R2 score."""
         return self.r2.item()
 
-    def train(self, features, targets):
-        """Train run for model.
-
-        :param features: self explanatory
-        :type features: torch.Tensor
-        :param targets: self explanatory
-        :type targets: torch.Tensor
-        """
-        self.batch_predictions = self.model(features)
-        self.batch_loss = self.criterion(self.batch_predictions, targets)
-
-        self.optimizer.zero_grad()
-        # below is ???
-        # for param in model.parameters():
-        #         param.grad = None
-        self.batch_loss.backward()
-        self.optimizer.step()
-
-    def mtest(self, features, targets):
-        """Testing run for model.
-
-        :param features: self explanatory
-        :type features: torch.Tensor
-        :param targets: self explanatory
-        :type targets: torch.Tensor
-        """
-        with torch.no_grad():
-            self.batch_predictions = self.model(features)
-            self.batch_loss = self.criterion(self.batch_predictions, targets)
-
     def evaluate(self, dataloader):
         """Typically used for evaluating the model by validation set.
         :param dataloader: Dataset to evaluate the model with.
@@ -151,7 +152,7 @@ class RunTorchCNN:
         features = dataloader.dataset[:][0].to(self.device)
         targets = dataloader.dataset[:][1].to(self.device)
         with torch.no_grad():
-            predictions = model(features)
+            predictions = self.model(features)
             loss = self.criterion(predictions, targets)
 
         r2 = 1 - self.criterion(predictions, targets) / torch.var(targets)
@@ -166,6 +167,6 @@ class RunTorchCNN:
         :rtype predictions: torch.Tensor
         """
         with torch.no_grad():
-            predictions = model(features)
+            predictions = self.model(features)
 
         return predictions
