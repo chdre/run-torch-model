@@ -129,6 +129,8 @@ class RunTorchCNN:
         """Typically used for evaluating the model by validation set.
         :param dataloader: Dataset to evaluate the model with.
         :type dataloader: torch.dataloader
+        :returns predictions, loss, r2: self explanatory
+        :rtype: torch.Tensor, float, float
         """
         features = dataloader.dataset[:][0].to(self.device)
         targets = dataloader.dataset[:][1].to(self.device)
@@ -138,10 +140,14 @@ class RunTorchCNN:
 
         r2 = 1 - self.criterion(predictions, targets) / torch.var(targets)
 
-        return predictions, loss
+        return loss, r2
 
     def predict(self, features):
         """Use the trained model to perform predictions on unseen data.
+        :param features: A set of features which are compatible with the model
+        :type features: torch.Tensor
+        :returns predictions: self explanatory
+        :rtype predictions: torch.Tensor
         """
         with torch.no_grad():
             predictions = model(features)
