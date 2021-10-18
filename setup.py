@@ -5,7 +5,7 @@ with open('README.md', 'r') as infile:
 
 setuptools.setup(
     name='run_torch_model',
-    version='0.1.7',
+    version='0.1.8',
     author='Christer Dreierstad',
     author_email='christerdr@outlook.com',
     description='Package for training and evaluating neural network models made using pytorch',

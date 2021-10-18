@@ -3,6 +3,7 @@ from torch import nn
 import torch.nn.functional as F
 import numpy as np
 from os.path import join
+from pathlib import Path
 
 
 class RunTorchCNN:
@@ -174,25 +175,78 @@ class RunTorchCNN:
 
         return predictions
 
-    def save_running_metrics(self, location):
+    @staticmethod
+    def numpy_save(location, tensor):
+        if tensor.is_cuda:
+            np.save(location, tensor.detach().cpu().numpy())
+        else:
+            np.save(location, tensor.detach().numpy())
+
+    @staticmethod
+    def iterate_filename(location):
+        i = 1
+        while True:
+            filename = Path(location.name + f'_{i}')
+            if Path(filename.name + '.npy').is_file():
+                i += 1
+            else:
+                break
+
+        return filename
+
+    def save_running_metrics(self, location, suffix='', overwrite=False):
         """Saves running metrics to file. Files are stored using numpy.save.
         Tensors are broadcasted cpu in case of cuda.
         :param location: Where to save the metric.
         :type location: str
-        :param metric: Which metric to save, typically R2/MSE.
-        :type metric: str
+        :param suffix: Suffix for filename
+        :type suffix: str
+        :param overwrite: Overwrite if file exits.
+        :type overwrite: bool
         """
         if not isinstance(location, str):
             raise ValueError('Argument location must be of type str')
 
-        np.save(join(location, 'r2_train'),
-                self.r2score_train.detach().cpu().numpy())
-        np.save(join(location, 'r2_test'),
-                self.r2score_test.detach().cpu().numpy())
-        np.save(join(location, 'loss_train'),
-                self.loss_avg_train.detach().cpu().numpy())
-        np.save(join(location, 'loss_test'),
-                self.loss_avg_test.detach().cpu().numpy())
+        path = Path(location)
+
+        if overwrite:
+            self.numpy_save(
+                path / f'r2score_train{suffix}', self.r2score_train)
+            self.numpy_save(
+                path / f'r2score_test{suffix}', self.r2score_test)
+            self.numpy_save(
+                path / f'loss_avg_train{suffix}', self.loss_avg_train)
+            self.numpy_save(
+                path / f'loss_avg_test{suffix}', self.loss_avg_test)
+
+        else:
+            if (path / f'r2_train{suffix}.npy').is_file():
+                p = self.iterate_filename(path / f'r2_train{suffix}')
+                self.numpy_save(p, self.r2score_train)
+            else:
+                self.numpy_save(
+                    path / f'r2_train{suffix}', self.r2score_train)
+
+            if (path / f'r2_test{suffix}.npy').is_file():
+                p = self.iterate_filename(path / f'r2_test{suffix}')
+                self.numpy_save(p, self.r2score_test)
+            else:
+                self.numpy_save(
+                    path / f'r2_test{suffix}', self.r2score_test)
+
+            if (path / f'loss_avg_train{suffix}.npy').is_file():
+                p = self.iterate_filename(path / f'loss_avg_train{suffix}')
+                self.numpy_save(p, self.loss_avg_train)
+            else:
+                self.numpy_save(
+                    path / f'loss_avg_train{suffix}', self.loss_avg_train)
+
+            if (path / f'loss_avg_test{suffix}.npy').is_file():
+                p = self.iterate_filename(path / f'loss_avg_test{suffix}')
+                self.numpy_save(p, self.loss_avg_test)
+            else:
+                self.numpy_save(
+                    path / f'loss_avg_test{suffix}', self.loss_avg_test)
 
     def save_metric(self, location, metric):
         """Saves specific metric to file.
