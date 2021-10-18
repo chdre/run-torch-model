@@ -2,6 +2,7 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 import numpy as np
+from os.path import join
 
 
 class RunTorchCNN:
@@ -172,3 +173,34 @@ class RunTorchCNN:
             predictions = self.model(features)
 
         return predictions
+
+    def save_running_metrics(self, location):
+        """Saves running metrics to file. Files are stored using numpy.save.
+        :param location: Where to save the metric.
+        :type location: str
+        :param metric: Which metric to save, typically R2/MSE.
+        :type metric: str
+        """
+        if not isinstance(location, str):
+            raise ValueError('Argument location must be of type str')
+
+        np.save(join(location, 'r2_train'),
+                self.r2score_train.detach().numpy())
+        np.save(join(location, 'r2_test'),
+                self.r2score_test.detach().numpy())
+        np.save(join(location, 'loss_train'),
+                self.loss_avg_train.detach().numpy())
+        np.save(join(location, 'loss_test'),
+                self.loss_avg_test.detach().numpy())
+
+    def save_metric(self, location, metric):
+        """Saves specific metric to file.
+
+        Requires knowledge of parameters in model to be useful?
+
+        :param location: Where to save the metric.
+        :type location: str
+        :param metric: Which metric to save, typically R2/MSE.
+        :type metric: str
+        """
+        raise NotImplementedError('To be added if necessary')
