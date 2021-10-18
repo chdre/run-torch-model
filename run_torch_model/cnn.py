@@ -19,7 +19,8 @@ class RunTorchCNN:
     :type dataloaders: tuple of type torch.data.dataloader
     :param criterion: Loss function for NN
     :type criterion: torch.nn.module.loss
-    :param verbose: Set training to print running loss and R2. Default is False.
+    :param verbose: Set training to print running loss and R2 to terminal.
+                    Defaults to False.
     :type verbose: bool
     """
 
