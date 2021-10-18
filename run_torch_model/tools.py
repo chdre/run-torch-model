@@ -37,11 +37,11 @@ def create_dataloader(features, targets, batch_size, train_size=0.8, test_size=0
 
     if isinstance(features, str):
         features = np.load(features)
-        if len(features.shape == 3):
+        if len(features.shape) == 3:
             features = features[:, np.newaxis, :, :]
     if isinstance(targets, str):
         targets = np.load(targets)
-        if len(targets.shape == 1):
+        if len(targets.shape) == 1:
             targets = targets[:, np.newaxis]
 
     nf = features.shape[0]
