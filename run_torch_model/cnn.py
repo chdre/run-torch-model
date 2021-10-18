@@ -17,9 +17,11 @@ class RunTorchCNN:
     :type dataloaders: tuple of type torch.data.dataloader
     :param criterion: Loss function for NN
     :type criterion: torch.nn.module.loss
+    :param verbose: Set training to print running loss and R2. Default is False.
+    :type verbose: bool
     """
 
-    def __init__(self, model, epochs, optimizer, dataloaders, criterion, verbose):
+    def __init__(self, model, epochs, optimizer, dataloaders, criterion, verbose=False):
         self.epochs = epochs
         self.optimizer = optimizer
         self.model = model
