@@ -176,6 +176,7 @@ class RunTorchCNN:
 
     def save_running_metrics(self, location):
         """Saves running metrics to file. Files are stored using numpy.save.
+        Tensors are broadcasted cpu in case of cuda.
         :param location: Where to save the metric.
         :type location: str
         :param metric: Which metric to save, typically R2/MSE.
@@ -185,13 +186,13 @@ class RunTorchCNN:
             raise ValueError('Argument location must be of type str')
 
         np.save(join(location, 'r2_train'),
-                self.r2score_train.detach().numpy())
+                self.r2score_train.detach().cpu().numpy())
         np.save(join(location, 'r2_test'),
-                self.r2score_test.detach().numpy())
+                self.r2score_test.detach().cpu().numpy())
         np.save(join(location, 'loss_train'),
-                self.loss_avg_train.detach().numpy())
+                self.loss_avg_train.detach().cpu().numpy())
         np.save(join(location, 'loss_test'),
-                self.loss_avg_test.detach().numpy())
+                self.loss_avg_test.detach().cpu().numpy())
 
     def save_metric(self, location, metric):
         """Saves specific metric to file.
