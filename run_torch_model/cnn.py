@@ -212,9 +212,9 @@ class RunTorchCNN:
 
         if overwrite:
             self.numpy_save(
-                path / f'r2score_train{suffix}', self.r2score_train)
+                path / f'r2_train{suffix}', self.r2score_train)
             self.numpy_save(
-                path / f'r2score_test{suffix}', self.r2score_test)
+                path / f'r2_test{suffix}', self.r2score_test)
             self.numpy_save(
                 path / f'loss_avg_train{suffix}', self.loss_avg_train)
             self.numpy_save(
