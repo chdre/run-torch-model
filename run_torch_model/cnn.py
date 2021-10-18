@@ -204,3 +204,10 @@ class RunTorchCNN:
         :type metric: str
         """
         raise NotImplementedError('To be added if necessary')
+
+    def save_model(self, location):
+        """Saves trained model to location.
+        :param location: Where to save the model and the name of the file.
+        :type location: str
+        """
+        torch.save({'state_dict': self.model.state_dict()}, location)
