@@ -7,13 +7,17 @@ def create_dataloader(features, targets, batch_size, train_size=0.8, test_size=0
     in two or three batches consisting depending on the sizes of train, test
     and validation split.
 
-    :param features: Input (or regressor) for the ML model. Dimensions must be
+    :param features: Input (or regressor) or location of file containing the
+                     features for the ML model. If location is supplied the file
+                     must be compatible with numpy.load. Dimensions must be
                      compatible with torch models, i.e. [samples, features] for
                      NN or [samples, channels, features] for a CNN.
-    :type features: array_like
-    :param targets: self explanatory. Dimensions required to be compatible with
-                    torch models, see above.
-    :type targets: array_like
+    :type features: array_like or str
+    :param targets: Targets or or location of file containing the targets. If
+                    location is supplied the file must be compatible with
+                    numpy.load. Dimensions required to be compatible with torch
+                    models, see above.
+    :type targets: array_like or str
     :param batch_size: Size of mini batches.
     :type batch_size: int or
     :param train_size: Size of training batch. Defaults to 0.8.
@@ -29,6 +33,16 @@ def create_dataloader(features, targets, batch_size, train_size=0.8, test_size=0
     :rtype: tuple of type torch.dataloader
     """
     torch.manual_seed(seed)
+
+    if isinstance(features, str):
+        features = np.load(features)
+        if len(features.shape == 3):
+            features = features[:, np.newaxis, :, :]
+    if isinstance(targets, str):
+        targets = np.load(targets)
+        if len(targets.shape == 1):
+            targets = targets[:, np.newaxis]
+
     nf = features.shape[0]
     nt = targets.shape[0]
     assert nf == nt, 'Number of samples for targets and features does not match'
