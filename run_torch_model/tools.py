@@ -1,5 +1,6 @@
 import torch
 import torch.utils.data as data
+import numpy as np
 
 
 def create_dataloader(features, targets, batch_size, train_size=0.8, test_size=0.2, validation_size=0, seed=42):
