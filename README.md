@@ -25,11 +25,12 @@ dataloader_train, dataloader_test = create_dataloader(features=features,
 
 ```
 import torch
+from run_torch_model import RunTorchCNN
 
 optimizer = torch.optim.Adam(model.parameters())
 criterion = torch.nn.MSELoss()
 
-run_model = RunTorchModel(model, # Some pytorch CNN model
+run_model = RunTorchCNN(model, # Some pytorch CNN model
                           epochs=100, 
                           optimizer=optimizer, 
                           dataloaders=(dataloader_train, dataloader_test), 
