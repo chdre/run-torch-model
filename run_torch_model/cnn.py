@@ -22,6 +22,8 @@ class RunTorchCNN:
     :param verbose: Set training to print running loss and R2 to terminal.
                     Defaults to False.
     :type verbose: bool
+    :param seed: Seed for torch. Defaults to 42.
+    :type seed: int
     """
 
     def __init__(self, model, epochs, optimizer, dataloaders, criterion, verbose=False, seed=42):
