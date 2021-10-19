@@ -24,7 +24,7 @@ class RunTorchCNN:
     :type verbose: bool
     """
 
-    def __init__(self, model, epochs, optimizer, dataloaders, criterion, verbose=False):
+    def __init__(self, model, epochs, optimizer, dataloaders, criterion, verbose=False, seed=42):
         self.epochs = epochs
         self.optimizer = optimizer
         self.model = model
@@ -40,6 +40,8 @@ class RunTorchCNN:
             self.dataloader_test = dataloaders[1]
             if len(dataloaders) == 3:
                 self.dataloader_valid = dataloaders[2]
+
+        torch.manual_seed(seed)
 
     def run_epoch(self, dataloader):
         all_targets = dataloader.dataset[:][1].to(self.device)
