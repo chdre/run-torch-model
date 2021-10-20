@@ -54,8 +54,10 @@ def create_dataloader(features, targets, batch_size, train_size=0.8, test_size=0
     if isinstance(validation_size, float):
         validation_size = int(nf * validation_size)
 
-    assert train_size + test_size + validation_size == nf, \
-        'Train, test and validation size does not add to length of dataset'
+    if not train_size + test_size + validation_size == nf:
+        train_size += nf - (train_size + test_size + validation_size)
+        warnings.warn(
+            'Train, test and validation size does not add to length of dataset. Added rest of samples to training set.')
 
     x = torch.Tensor(features)
     y = torch.Tensor(targets)
