@@ -191,8 +191,8 @@ class RunTorchCNN:
     def iterate_filename(location):
         i = 1
         while True:
-            filename = Path(location.name + f'_{i}')
-            if Path(filename.name + '.npy').is_file():
+            filename = Path(str(location) + f'_{i}')
+            if Path(str(filename) + '.npy').is_file():
                 i += 1
             else:
                 break
