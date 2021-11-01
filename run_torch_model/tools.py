@@ -4,7 +4,7 @@ import numpy as np
 import warnings
 
 
-def create_dataloader(features, targets, batch_size, train_size=0.8, test_size=0.2, validation_size=0, seed=42):
+def create_dataloader(features, targets, batch_size, train_size=0.8, test_size=0.2, validation_size=0, seed=42, **kwargs):
     """Creates a Pytorch compatible dataset of type dataloader. Data is split
     in two or three batches consisting depending on the sizes of train, test
     and validation split.
@@ -68,9 +68,10 @@ def create_dataloader(features, targets, batch_size, train_size=0.8, test_size=0
     train, test, validation = data.random_split(
         dataset, (train_size, test_size, validation_size))
 
-    dataloader_train = data.DataLoader(train, batch_size=batch_size)
-    dataloader_test = data.DataLoader(test, batch_size=batch_size)
-    dataloader_valid = data.DataLoader(validation, batch_size=batch_size)
+    dataloader_train = data.DataLoader(train, batch_size=batch_size, **kwargs)
+    dataloader_test = data.DataLoader(test, batch_size=batch_size, **kwargs)
+    dataloader_valid = data.DataLoader(
+        validation, batch_size=batch_size, **kwargs)
 
     if validation_size != 0:
         return_data = (dataloader_train, dataloader_test, dataloader_valid)
