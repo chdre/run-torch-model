@@ -70,8 +70,9 @@ def create_dataloader(features, targets, batch_size, train_size=0.8, test_size=0
 
     dataloader_train = data.DataLoader(train, batch_size=batch_size, **kwargs)
     dataloader_test = data.DataLoader(test, batch_size=batch_size, **kwargs)
-    dataloader_valid = data.DataLoader(
-        validation, batch_size=batch_size, **kwargs)
+    if validation_size != 0:
+        dataloader_valid = data.DataLoader(
+            validation, batch_size=batch_size, **kwargs)
 
     if validation_size != 0:
         return_data = (dataloader_train, dataloader_test, dataloader_valid)
