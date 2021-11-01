@@ -4,6 +4,7 @@ import torch.nn.functional as F
 import numpy as np
 from os.path import join
 from pathlib import Path
+from torchmetrics.functional import r2_score
 
 
 class RunTorchCNN:
@@ -71,8 +72,8 @@ class RunTorchCNN:
 
         self.predictions = torch.cat(_predictions, dim=0)
         self.loss_avg = total_loss.item() / len(dataloader)
-        self.r2 = 1 - self.criterion(self.predictions,
-                                     all_targets) / torch.var(all_targets)
+        self.r2 = r2_score(self.predictions, all_targets)
+        #1 - self.criterion(self.predictions, all_targets) / torch.var(all_targets)
 
     def __call__(self):
         self.r2score_train = torch.zeros(self.epochs).to(self.device)
