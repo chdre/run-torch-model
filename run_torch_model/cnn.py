@@ -105,10 +105,10 @@ class RunTorchCNN:
         self.batch_predictions = self.model(features)
         self.batch_loss = self.criterion(self.batch_predictions, targets)
 
-        self.optimizer.zero_grad()
+        # self.optimizer.zero_grad()
         # below is ???
-        # for param in self.model.parameters():
-        #     param.grad = None
+        for param in self.model.parameters():
+            param.grad = None
         self.batch_loss.backward()
         self.optimizer.step()
 
