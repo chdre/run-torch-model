@@ -68,9 +68,6 @@ def create_dataloader(features, targets, batch_size, train_size=0.8, test_size=0
     train, test, validation = data.random_split(
         dataset, (train_size, test_size, validation_size))
 
-    dataloaders = {split: torch.utils.data.DataLoader(datasets[split], batch_size=16, shuffle=(
-        split == 'train'), pin_memory=True) for split in ('train', 'val')}
-
     dataloader_train = data.DataLoader(train, batch_size=batch_size, **kwargs)
     # Settings shuffle to False for test (and validation)
     if kwargs['shuffle']:
