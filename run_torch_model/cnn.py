@@ -65,9 +65,10 @@ class RunTorchCNN:
             features = data_batch[0].to(self.device)
             targets = data_batch[1].to(self.device)
 
-            call = {'True': self.train(features, targets),
-                    'False': self.mtest(features, targets)}
-            call[str(self.training)]
+            if self.training:
+                self.train(features, targets)
+            else:
+                self.mtest(features, targets)
 
             total_loss += self.batch_loss
             _predictions.append(self.batch_predictions)
