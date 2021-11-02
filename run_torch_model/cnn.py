@@ -14,8 +14,9 @@ class RunTorchCNN:
     :type model: torch.nn.Module
     :param epochs: Number of epochs to train, i.e. number of training iterations
     :type epochs: int
-    :param optimizer: Pytorch optimizer, e.g. torch.optim.Adam
-    :type optimizer: torch.optim
+    :param optimizer: String telling which tytorch optimizer to use, e.g.
+                      'torch.optim.Adam'.
+    :type optimizer: str
     :param dataloaders: Datasets containing features and targets
     :type dataloaders: tuple of type torch.data.dataloader
     :param criterion: Loss function for NN
@@ -25,9 +26,11 @@ class RunTorchCNN:
     :type verbose: bool
     :param seed: Seed for torch. Defaults to 42.
     :type seed: int
+    :param args: Parameters for chosen optimizer.
+    :type args: dict
     """
 
-    def __init__(self, model, epochs, optimizer, dataloaders, criterion, verbose=False, seed=42):
+    def __init__(self, model, epochs, optimizer, dataloaders, criterion, verbose=False, seed=42, *args):
         self.model = model
         self.epochs = epochs
 
@@ -35,7 +38,7 @@ class RunTorchCNN:
             "cuda:0" if torch.cuda.is_available() else "cpu")
         self.model.to(self.device)
 
-        self.optimizer = optimizer.to(self.device)
+        self.optimizer = eval(optimizer)(args)
         self.criterion = criterion.to(self.device)
         self.verbose = verbose
 
