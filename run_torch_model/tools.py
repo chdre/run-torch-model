@@ -1,10 +1,14 @@
 import torch
 import torch.utils.data as data
 import numpy as np
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
 import warnings
 
 
-def create_dataloader(features, targets, batch_size, train_size=0.8, test_size=0.2, validation_size=0, seed=42, **kwargs):
+def create_dataloader(features, targets, batch_size, train_size=0.8,
+                      test_size=0.2, validation_size=0, seed=42,
+                      scale_data=False, **kwargs):
     """Creates a Pytorch compatible dataset of type dataloader. Data is split
     in two or three batches consisting depending on the sizes of train, test
     and validation split.
@@ -30,6 +34,9 @@ def create_dataloader(features, targets, batch_size, train_size=0.8, test_size=0
     :type validation_size: int or float
     :param seed: Seed for torch random split. Defaults to 42.
     :type seed: int
+    :param scale_data: Whether to scale the data by sklearn StandardScaler.
+                       Follows (x - mean(x)) / std(x). Defaults to False.
+    :type scale_data: bool
 
     :returns data: Tuple of train, test (and validation) dataloaders
     :rtype: tuple of type torch.dataloader
@@ -60,13 +67,35 @@ def create_dataloader(features, targets, batch_size, train_size=0.8, test_size=0
         warnings.warn(
             'Train, test and validation size does not add to length of dataset. Added rest of samples to training set.')
 
-    x = torch.Tensor(features)
-    y = torch.Tensor(targets)
+    if not scale_data:
+        x = torch.Tensor(features)
+        y = torch.Tensor(targets)
 
-    dataset = data.TensorDataset(x, y)
+        dataset = data.TensorDataset(x, y)
 
-    train, test, validation = data.random_split(
-        dataset, (train_size, test_size, validation_size))
+        train, test, validation = data.random_split(
+            dataset, (train_size, test_size, validation_size))
+
+    if scale_data:
+        scaler = StandardScaler()
+
+        # Create a train/test split, test consists of both test and validation
+        xtrain, xtest, ytrain, ytest = train_test_split(
+            features, targets, test_size=test_size + validation_size)
+        # If validation > 0 we split the test set from above to test and validation
+        if validation_size > 0:
+            xtest, xval, ytest, yval = train_test_split(
+                xtest, ytest, test_size=validation_size)
+
+            yval = scaler.fit_transform(yval)
+            validation = data.TensorDataset(
+                torch.Tensor(xval), torch.Tensor(yval))
+
+        ytrain = scaler.fit_transform(ytrain)
+        ytest = scaler.fit_transform(ytest)
+
+        train = data.TensorDataset(torch.Tensor(xtrain), torch.Tensor(ytrain))
+        test = data.TensorDataset(torch.Tensor(xtest), torch.Tensor(ytest))
 
     dataloader_train = data.DataLoader(train, batch_size=batch_size, **kwargs)
     # Settings shuffle to False for test (and validation)
