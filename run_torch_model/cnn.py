@@ -65,10 +65,9 @@ class RunTorchCNN:
             features = data_batch[0].to(self.device)
             targets = data_batch[1].to(self.device)
 
-            if self.training:
-                self.train(features, targets)
-            elif not self.training:
-                self.mtest(features, targets)
+            call = {'True': self.train(features, targets),
+                    'False': self.mtest(features, targets)}
+            call[str(self.training)]
 
             total_loss += self.batch_loss
             _predictions.append(self.batch_predictions)
@@ -79,10 +78,14 @@ class RunTorchCNN:
         #1 - self.criterion(self.predictions, all_targets) / torch.var(all_targets)
 
     def __call__(self):
-        self.r2score_train = torch.zeros(self.epochs).to(self.device)
-        self.loss_avg_train = torch.zeros(self.epochs).to(self.device)
-        self.r2score_test = torch.zeros(self.epochs).to(self.device)
-        self.loss_avg_test = torch.zeros(self.epochs).to(self.device)
+        self.r2score_train = torch.zeros(
+            self.epochs, device=torch.device(self.device))
+        self.loss_avg_train = torch.zeros(
+            self.epochs, device=torch.device(self.device))
+        self.r2score_test = torch.zeros(
+            self.epochs, device=torch.device(self.device))
+        self.loss_avg_test = torch.zeros(
+            self.epochs, device=torch.device(self.device))
 
         for i in range(self.epochs):
             self.training = True
@@ -168,7 +171,8 @@ class RunTorchCNN:
             predictions = self.model(features)
             loss = self.criterion(predictions, targets)
 
-        r2 = 1 - self.criterion(predictions, targets) / torch.var(targets)
+        r2 = r2_score(self.predictions, all_targets)
+        # r2 = 1 - self.criterion(predictions, targets) / torch.var(targets)
 
         return loss, r2
 
