@@ -28,15 +28,16 @@ class RunTorchCNN:
     """
 
     def __init__(self, model, epochs, optimizer, dataloaders, criterion, verbose=False, seed=42):
-        self.epochs = epochs
-        self.optimizer = optimizer
         self.model = model
-        self.criterion = criterion
-        self.verbose = verbose
+        self.epochs = epochs
 
         self.device = torch.device(
             "cuda:0" if torch.cuda.is_available() else "cpu")
         self.model.to(self.device)
+
+        self.optimizer = optimizer.to(self.device)
+        self.criterion = criterion.to(self.device)
+        self.verbose = verbose
 
         if len(dataloaders) >= 2:
             self.dataloader_train = dataloaders[0]
@@ -49,10 +50,8 @@ class RunTorchCNN:
     def run_epoch(self, dataloader):
         all_targets = dataloader.dataset[:][1].to(self.device)
 
-        if self.training:
-            self.model.train()
-        else:
-            self.model.eval()
+        # If training is False model goes to eval
+        self.model.train(self.training)
 
         _predictions = []
         # In the case where device is GPU it is faster to work on GPU with Tensor than float on CPU
@@ -107,9 +106,9 @@ class RunTorchCNN:
         self.batch_loss = self.criterion(self.batch_predictions, targets)
 
         # self.optimizer.zero_grad()
-        # below is ???
         for param in self.model.parameters():
             param.grad = None
+
         self.batch_loss.backward()
         self.optimizer.step()
 
