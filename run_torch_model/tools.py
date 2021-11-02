@@ -76,7 +76,7 @@ def create_dataloader(features, targets, batch_size, train_size=0.8,
         train, test, validation = data.random_split(
             dataset, (train_size, test_size, validation_size))
 
-    if scale_data:
+    elif scale_data:
         scaler = StandardScaler()
 
         # Create a train/test split, test consists of both test and validation
