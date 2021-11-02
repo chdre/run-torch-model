@@ -38,8 +38,7 @@ class RunTorchCNN:
             "cuda:0" if torch.cuda.is_available() else "cpu")
         self.model.to(self.device)
 
-        args['params'] = self.model.parameters()
-        self.optimizer = eval(optimizer)(args)
+        self.optimizer = eval(optimizer)(self.model.parameters(), args)
         self.criterion = criterion.to(self.device)
         self.verbose = verbose
 
