@@ -291,3 +291,16 @@ class RunTorchCNN:
         checkpoint = torch.load(
             location, map_location=lambda storage, loc: storage)
         self.model.load_state_dict(checkpoint['state_dict'])
+        self.model.eval()
+
+    def intermediate_saving(self, save, interval):
+        """Turns on or off intermediate saving during training for a fixed
+        interval.
+
+        :param save: Whether to activate saving or not.
+        :type save: bool
+        :param interval: How often to save the model.
+        :type interval: int
+        """
+        self.intermediate_saving = save
+        self.save_interval = interval
