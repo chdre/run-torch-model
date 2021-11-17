@@ -30,7 +30,8 @@ class RunTorchCNN:
     :type seed: int
     """
 
-    def __init__(self, model, epochs, optimizer, optimizer_args, dataloaders, criterion, verbose=False, seed=42):
+    def __init__(self, model, epochs, optimizer, optimizer_args, dataloaders,
+                 criterion, verbose=False, seed=42):
         self.model = model
         self.epochs = epochs
 
@@ -134,7 +135,7 @@ class RunTorchCNN:
 
     def verbose_call(self, i):
         print(
-            f'Epoch: {i + 1}/{self.epochs}  |  [TRAIN,TEST] -- loss: [{self.loss_avg_train[i].item():.2f}, {self.loss_avg_test[i].item():.2f}]   |  R2: [{self.r2score_train[i].item():.2f}, {self.r2score_test[i].item():.2f}]')
+            f'Epoch: {i + 1}/{self.epochs}  |  [TRAIN,TEST] -- loss: [{self.loss_avg_train[i].item():.2f}, {self.loss_avg_test[i].item():.2f}]   |  R2: [{self.r2score_train[i].item():.2f}, {self.r2score_test[i].item():.2f}]', flush=True)
 
     def get_predictions(self):
         """Returns predictions. Function could return predictions from
@@ -280,3 +281,13 @@ class RunTorchCNN:
         :type location: str
         """
         torch.save({'state_dict': self.model.state_dict()}, location)
+
+    def load_model(self, location):
+        """Loads a saved model.
+
+        :param location: Where to load the model and the name of the file.
+        :type location: str
+        """
+        checkpoint = torch.load(
+            location, map_location=lambda storage, loc: storage)
+        self.model.load_state_dict(checkpoint['state_dict'])
