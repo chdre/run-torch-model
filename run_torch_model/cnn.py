@@ -44,7 +44,7 @@ class RunTorchCNN:
         self.criterion = criterion.to(self.device)
         self.verbose = verbose
 
-        if dataloader is not None:
+        if dataloaders is not None:
             if len(dataloaders) >= 2:
                 self.dataloader_train = dataloaders[0]
                 self.dataloader_test = dataloaders[1]
