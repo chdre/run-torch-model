@@ -186,6 +186,9 @@ class RunTorchCNN:
         :returns predictions: self explanatory
         :rtype predictions: torch.Tensor
         """
+
+        features = features.to(self.device)
+
         with torch.no_grad():
             predictions = self.model(features)
 
