@@ -44,11 +44,12 @@ class RunTorchCNN:
         self.criterion = criterion.to(self.device)
         self.verbose = verbose
 
-        if len(dataloaders) >= 2:
-            self.dataloader_train = dataloaders[0]
-            self.dataloader_test = dataloaders[1]
-            if len(dataloaders) == 3:
-                self.dataloader_valid = dataloaders[2]
+        if dataloader is not None:
+            if len(dataloaders) >= 2:
+                self.dataloader_train = dataloaders[0]
+                self.dataloader_test = dataloaders[1]
+                if len(dataloaders) == 3:
+                    self.dataloader_valid = dataloaders[2]
 
         torch.manual_seed(seed)
 
