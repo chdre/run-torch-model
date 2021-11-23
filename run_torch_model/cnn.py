@@ -54,8 +54,6 @@ class RunTorchCNN:
         torch.manual_seed(seed)
 
     def run_epoch(self, dataloader):
-        all_targets = dataloader.dataset[:][1].to(self.device)
-
         # If training is False model goes to eval
         self.model.train(self.training)
 
@@ -63,9 +61,13 @@ class RunTorchCNN:
         # In the case where device is GPU it is faster to work on GPU with Tensor than float on CPU
         total_loss = torch.zeros(1, device=torch.device(self.device))
 
+        # Dummy tensor to use for concatenating all tensors. Faster than list
+        all_targets = torch.Tensor([], device=torch.device(self.device))
+
         for data_batch in dataloader:
             features = data_batch[0].to(self.device)
             targets = data_batch[1].to(self.device)
+            all_targets = torch.cat((all_targets, targets), dim=0)
 
             if self.training:
                 self.train(features, targets)
@@ -75,10 +77,15 @@ class RunTorchCNN:
             total_loss += self.batch_loss
             _predictions.append(self.batch_predictions)
 
+        # all_targets = dataloader.dataset[:][1].to(self.device)
+
         self.predictions = torch.cat(_predictions, dim=0)
         self.loss_avg = total_loss.item() / len(dataloader)
-        self.r2 = r2_score(self.predictions, all_targets)
-        #1 - self.criterion(self.predictions, all_targets) / torch.var(all_targets)
+        assert self.predictions.shape == all_targets.shape, \
+            'self.predictions.shape == all_targets.shape'
+        self.r2 = r2_score(preds=self.predictions, target=all_targets)
+        # self.r2 = 1 - self.criterion(self.predictions, all_targets) / \
+        #     torch.var(all_targets)
 
     def __call__(self):
         self.r2score_train = torch.zeros(
