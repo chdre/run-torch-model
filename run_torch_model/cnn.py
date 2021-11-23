@@ -62,7 +62,7 @@ class RunTorchCNN:
         total_loss = torch.zeros(1, device=torch.device(self.device))
 
         # Dummy tensor to use for concatenating all tensors. Faster than list
-        all_targets = torch.Tensor([], device=torch.device(self.device))
+        all_targets = torch.Tensor([]).to(self.device)
 
         for data_batch in dataloader:
             features = data_batch[0].to(self.device)
