@@ -2,13 +2,23 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 import numpy as np
-from os.path import join
 from pathlib import Path
 from torchmetrics.functional import r2_score
 
 
 class RunTorchCNN:
-    """Simple package to execute training for a pytorch compatible CNN.
+    """Simple program to execute training for a pytorch compatible CNN.
+
+    The training will be performed on CUDA if this is availible, else it will
+    run on CPU.
+
+    The program can be used to perform predictions on new samples by passing
+    dataloaders as None. In this case several functions will not be possible
+    to execute, but using predict() and other side functions will work. At the
+    moment it is not specified which functions requires a dataloader, but we
+    expect that the average user, which is familiar with neural networks, is
+    able to understand what are the requirements when using the package outside
+    the main purpose.
 
     :param model: Pytorch model
     :type model: torch.nn.Module
@@ -24,7 +34,8 @@ class RunTorchCNN:
     :param criterion: Loss function for NN
     :type criterion: torch.nn.module.loss
     :param verbose: Set training to print running loss and R2 to terminal.
-                    Defaults to False.
+                    Defaults to False. Will significantly slow down the training
+                    if using a GPU.
     :type verbose: bool
     :param seed: Seed for torch. Defaults to 42.
     :type seed: int
@@ -35,6 +46,7 @@ class RunTorchCNN:
         self.model = model
         self.epochs = epochs
 
+        # Automatically set cuda as device if it is available
         self.device = torch.device(
             "cuda:0" if torch.cuda.is_available() else "cpu")
         self.model.to(self.device)
@@ -53,7 +65,42 @@ class RunTorchCNN:
 
         torch.manual_seed(seed)
 
+    def __call__(self):
+        """Calling the class results in training and testing for a specified
+        number of epochs, i.e. training iterations.
+        """
+        self.r2score_train = torch.zeros(
+            self.epochs, device=torch.device(self.device))
+        self.loss_avg_train = torch.zeros(
+            self.epochs, device=torch.device(self.device))
+        self.r2score_test = torch.zeros(
+            self.epochs, device=torch.device(self.device))
+        self.loss_avg_test = torch.zeros(
+            self.epochs, device=torch.device(self.device))
+
+        for i in range(self.epochs):
+            self.training = True
+            self.run_epoch(self.dataloader_train)
+            self.r2score_train[i] = self.r2
+            self.loss_avg_train[i] = self.loss_avg
+
+            self.training = False
+            self.run_epoch(self.dataloader_test)
+            self.r2score_test[i] = self.r2
+            self.loss_avg_test[i] = self.loss_avg
+
+            if self.verbose:
+                self.verbose_call(i)
+            # WIP
+            # if self.intermediate_saving and i == self.save_interval:
+            #     self.save_model(location=f'{self.save_path}/model_e{i}.pt')
+
     def run_epoch(self, dataloader):
+        """Executes a single training iteration.
+
+        :param dataloader: Data containing features and targets.
+        :type dataloader: torch.data.DataLoader
+        """
         # If training is False model goes to eval
         self.model.train(self.training)
 
@@ -87,30 +134,6 @@ class RunTorchCNN:
         # self.r2 = 1 - self.criterion(self.predictions, all_targets) / \
         #     torch.var(all_targets)
 
-    def __call__(self):
-        self.r2score_train = torch.zeros(
-            self.epochs, device=torch.device(self.device))
-        self.loss_avg_train = torch.zeros(
-            self.epochs, device=torch.device(self.device))
-        self.r2score_test = torch.zeros(
-            self.epochs, device=torch.device(self.device))
-        self.loss_avg_test = torch.zeros(
-            self.epochs, device=torch.device(self.device))
-
-        for i in range(self.epochs):
-            self.training = True
-            self.run_epoch(self.dataloader_train)
-            self.r2score_train[i] = self.r2
-            self.loss_avg_train[i] = self.loss_avg
-
-            self.training = False
-            self.run_epoch(self.dataloader_test)
-            self.r2score_test[i] = self.r2
-            self.loss_avg_test[i] = self.loss_avg
-
-            if self.verbose:
-                self.verbose_call(i)
-
     def train(self, features, targets):
         """Train run for model.
 
@@ -130,7 +153,7 @@ class RunTorchCNN:
         self.optimizer.step()
 
     def mtest(self, features, targets):
-        """Testing run for model.
+        """Test run for model.
 
         :param features: self explanatory
         :type features: torch.Tensor
@@ -142,6 +165,16 @@ class RunTorchCNN:
             self.batch_loss = self.criterion(self.batch_predictions, targets)
 
     def verbose_call(self, i):
+        """Function will be called if verbose is set to True. This will slow
+        down the training significantly if training is done on GPU. The reason
+        for this is casting from GPU to CPU is slow.
+
+        TO-DO:
+            - Make this function a static method
+
+        :param i: Training iteration.
+        :type i: int
+        """
         print(
             f'Epoch: {i + 1}/{self.epochs}  |  [TRAIN,TEST] -- loss: [{self.loss_avg_train[i].item():.2f}, {self.loss_avg_test[i].item():.2f}]   |  R2: [{self.r2score_train[i].item():.2f}, {self.r2score_test[i].item():.2f}]', flush=True)
 
@@ -170,6 +203,7 @@ class RunTorchCNN:
 
     def evaluate(self, dataloader):
         """Typically used for evaluating the model by validation set.
+
         :param dataloader: Dataset to evaluate the model with.
         :type dataloader: torch.dataloader
         :returns predictions, loss, r2: self explanatory
@@ -188,6 +222,7 @@ class RunTorchCNN:
 
     def predict(self, features):
         """Use the trained model to perform predictions on unseen data.
+
         :param features: A set of features which are compatible with the model
         :type features: torch.Tensor
         :returns predictions: self explanatory
@@ -203,6 +238,14 @@ class RunTorchCNN:
 
     @staticmethod
     def numpy_save(location, tensor):
+        """Saves a given tensor as an array at a specified location. Arrays are
+        saved with numpy.save.
+
+        :param location: Path, including filename, to store the tensor.
+        :type location: Pathlib.PosixPath or str
+        :param tensor: Tensor to store as numpy array
+        :type tensor: torch.Tensor
+        """
         if tensor.is_cuda:
             np.save(location, tensor.detach().cpu().numpy())
         else:
@@ -210,6 +253,15 @@ class RunTorchCNN:
 
     @staticmethod
     def iterate_filename(location):
+        """If file exists we create a new filename instead of overwriting. This
+        function adds a number to the chosen filename.
+
+        :param location: Path to store the file, including the filename.
+        :type location: Pathlib.PosixPath
+        :returns filename: New path with added integer at the end of the
+                           filename.
+        :rtype filename: Pathlib.PosixPath
+        """
         i = 1
         while True:
             filename = Path(str(location) + f'_{i}')
@@ -223,6 +275,7 @@ class RunTorchCNN:
     def save_running_metrics(self, location, suffix='', overwrite=False):
         """Saves running metrics to file. Files are stored using numpy.save.
         Tensors are broadcasted cpu in case of cuda.
+
         :param location: Where to save the metric.
         :type location: str
         :param suffix: Suffix for filename
@@ -288,6 +341,7 @@ class RunTorchCNN:
 
     def save_model(self, location):
         """Saves trained model to location.
+
         :param location: Where to save the model and the name of the file.
         :type location: str
         """
@@ -304,7 +358,7 @@ class RunTorchCNN:
         self.model.load_state_dict(checkpoint['state_dict'])
         self.model.eval()
 
-    def intermediate_saving(self, save, interval):
+    def intermediate_saving(self, save, interval, path):
         """Turns on or off intermediate saving during training for a fixed
         interval.
 
@@ -315,3 +369,4 @@ class RunTorchCNN:
         """
         self.intermediate_saving = save
         self.save_interval = interval
+        self.save_path = path
