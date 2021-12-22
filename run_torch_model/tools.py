@@ -8,10 +8,15 @@ import warnings
 
 def create_dataloader(features, targets, batch_size, train_size=0.8,
                       test_size=0.2, validation_size=0, seed=42,
-                      scale_data=False, **kwargs):
+                      scale_data=False, half_precision=False, **kwargs):
     """Creates a Pytorch compatible dataset of type dataloader. Data is split
     in two or three batches consisting depending on the sizes of train, test
     and validation split.
+
+
+    TO-DO:
+        - Implement and test autocast for Automatic Mixed Precision (AMP).
+        Only to be active with compatible GPUs.
 
     :param features: Input (or regressor) or location of file containing the
                      features for the ML model. If location is supplied the file
@@ -37,7 +42,9 @@ def create_dataloader(features, targets, batch_size, train_size=0.8,
     :param scale_data: Whether to scale the data by sklearn StandardScaler.
                        Follows (x - mean(x)) / std(x). Defaults to False.
     :type scale_data: bool
-
+    :param half_precision: Whether to use half precision, i.e. float16, for
+                           torch.Tensors. Defaults to False.
+    :type half_precision: bool
     :returns data: Tuple of train, test (and validation) dataloaders
     :rtype: tuple of type torch.dataloader
     """
@@ -70,6 +77,10 @@ def create_dataloader(features, targets, batch_size, train_size=0.8,
     if not scale_data:
         x = torch.Tensor(features)
         y = torch.Tensor(targets)
+
+        if half_precision:
+            x = x.type(torch.float16)
+            y = y.type(torch.float16)
 
         dataset = data.TensorDataset(x, y)
 
