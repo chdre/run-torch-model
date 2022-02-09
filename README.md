@@ -1,5 +1,5 @@
 # run-torch-model
-Simple program to run a pytorch compatible model. Currently functions with CNN. Includes a tools function which has support for creating dataloader objects required for training/testing/validation.
+Simple program to run a pytorch compatible model. Includes a tools function which has support for creating dataloader objects required for training/testing/validation.
 
 # Requirements
 - torch
@@ -17,20 +17,20 @@ from run_torch_model import create_dataloader
 
 dataloader_train, dataloader_test = create_dataloader(features=features, 
                                                       targets=targets,
-                                                      batch_size=128,
-                                                      train_size=0.8,
-                                                      test_size=0.2)
+                                                      batch_size=batch_size,
+                                                      train_size=train_size,
+                                                      test_size=test_size)
 ```
 
 
 ```
 import torch
-from run_torch_model import RunTorchCNN
+from run_torch_model import RunTorchNN
 
 optimizer = torch.optim.Adam(model.parameters())
 criterion = torch.nn.MSELoss()
 
-run_model = RunTorchCNN(model, # Some pytorch CNN model
+run_model = RunTorchNN(model, # Some pytorch model
                           epochs=100, 
                           optimizer=optimizer, 
                           dataloaders=(dataloader_train, dataloader_test), 
