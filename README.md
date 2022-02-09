@@ -3,6 +3,8 @@ Simple program to run a pytorch compatible model. Includes a tools function whic
 
 # Requirements
 - torch
+- torchmetrics
+- scikit-learn
 
 # Install 
 Install using pip:
