@@ -6,8 +6,8 @@ from pathlib import Path
 from torchmetrics.functional import r2_score
 
 
-class RunTorchCNN:
-    """Simple program to execute training for a pytorch compatible CNN.
+class RunTorchNN:
+    """Simple program to execute training for a pytorch compatible NN.
 
     The training will be performed on CUDA if this is availible, else it will
     run on CPU.
@@ -128,6 +128,7 @@ class RunTorchCNN:
 
         self.predictions = torch.cat(_predictions, dim=0)
         self.loss_avg = total_loss.item() / len(dataloader)
+
         assert self.predictions.shape == all_targets.shape, \
             'self.predictions.shape == all_targets.shape'
         self.r2 = r2_score(preds=self.predictions, target=all_targets)
@@ -347,7 +348,7 @@ class RunTorchCNN:
         """
         torch.save({'state_dict': self.model.state_dict()}, location)
 
-    def load_model(self, location):
+    def load_model(self, location, eval=True):
         """Loads a saved model.
 
         :param location: Where to load the model and the name of the file.
@@ -356,7 +357,10 @@ class RunTorchCNN:
         checkpoint = torch.load(
             location, map_location=lambda storage, loc: storage)
         self.model.load_state_dict(checkpoint['state_dict'])
-        self.model.eval()
+        if eval:
+            self.model.eval()
+        else:
+            self.model.train()
 
     def intermediate_saving(self, save, interval, path):
         """Turns on or off intermediate saving during training for a fixed

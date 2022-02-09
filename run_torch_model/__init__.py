@@ -1,4 +1,4 @@
-from . import cnn, tools
+from . import run_torch_model, tools
 
 create_dataloader = tools.create_dataloader
-RunTorchCNN = cnn.RunTorchCNN
+RunTorchNN = cnn.RunTorchNN
