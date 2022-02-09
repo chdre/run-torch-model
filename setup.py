@@ -19,6 +19,6 @@ setuptools.setup(
         'Operating System :: OS Independent',
     ],
     python_requires='>=3.6',
-    install_requires=['torch', 'torchmetrics'],
+    install_requires=['torch', 'torchmetrics', 'scikit-learn],
     include_package_data=True,
 )
