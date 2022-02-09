@@ -7,7 +7,7 @@ Simple program to run a pytorch compatible model. Includes a tools function whic
 # Install 
 Install using pip:
 ```
-pip install git+https://github.com/chdre/run-torch-model/
+pip install run-torch-model
 ```
 
 # Usage
