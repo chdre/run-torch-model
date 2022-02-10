@@ -24,17 +24,20 @@ dataloader_train, dataloader_test = create_dataloader(features=features,
                                                       test_size=test_size)
 ```
 
+To run a model we define the optimizer, its arguments and a criterion, feed into the class and perform a call for training.
 
 ```
 import torch
 from run_torch_model import RunTorchNN
 
-optimizer = torch.optim.Adam(model.parameters())
+optimizer = 'torch.optim.Adam'  # Must be string, if CUDA we initiate the optimizer after calling .cuda for speed-up
+optimizer_args = {'lr': 0.001'} # Initialize some arguments for the optimizer
 criterion = torch.nn.MSELoss()
 
 run_model = RunTorchNN(model, # Some pytorch model
                           epochs=100, 
-                          optimizer=optimizer, 
+                          optimizer=optimizer,
+                          optimizer_args=optimizer_args,
                           dataloaders=(dataloader_train, dataloader_test), 
                           criterion=criterion)
  
