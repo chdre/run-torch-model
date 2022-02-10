@@ -9,7 +9,7 @@ setuptools.setup(
     author='Christer Dreierstad',
     author_email='christerdr@outlook.com',
     description='Package for training and evaluating neural network models made using pytorch',
-    long_description=long_description
+    long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/chdre/run-torch-model',
     packages=setuptools.find_packages(),
