@@ -124,16 +124,12 @@ class RunTorchNN:
             total_loss += self.batch_loss
             _predictions.append(self.batch_predictions)
 
-        # all_targets = dataloader.dataset[:][1].to(self.device)
-
         self.predictions = torch.cat(_predictions, dim=0)
         self.loss_avg = total_loss.item() / len(dataloader)
 
         assert self.predictions.shape == all_targets.shape, \
             'self.predictions.shape == all_targets.shape'
         self.r2 = r2_score(preds=self.predictions, target=all_targets)
-        # self.r2 = 1 - self.criterion(self.predictions, all_targets) / \
-        #     torch.var(all_targets)
 
     def train(self, features, targets):
         """Train run for model.
@@ -217,7 +213,6 @@ class RunTorchNN:
             loss = self.criterion(predictions, targets)
 
         r2 = r2_score(self.predictions, all_targets)
-        # r2 = 1 - self.criterion(predictions, targets) / torch.var(targets)
 
         return loss, r2
 
