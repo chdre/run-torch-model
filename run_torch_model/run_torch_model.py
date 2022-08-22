@@ -184,11 +184,29 @@ class RunTorchNN:
 
     def get_growing_loss(self):
         """Returns train and test loss as a function of epochs."""
-        return self.loss_avg_train.detach().numpy(), self.loss_avg_test.detach().numpy()
+        if self.loss_avg_train.is_cuda:
+            loss_train = self.loss_avg_train.detach().cpu().numpy()
+        else:
+            loss_train = self.loss_avg_train.detach().numpy()
+        if self.loss_avg_test.is_cuda:
+            loss_test = self.loss_avg_test.detach().cpu().numpy()
+        else:
+            loss_test = self.loss_avg_test.detach().numpy()
+
+        return loss_train, loss_test
 
     def get_growing_r2(self):
         """Returns train and test R2 score as a function of epochs."""
-        return self.r2score_train.detach().numpy(), self.r2score_test.detach().numpy()
+        if self.r2score_train.is_cuda:
+            r2score_train = self.r2score_train.detach().cpu().numpy()
+        else:
+            r2score_train = self.r2score_train.detach().numpy()
+        if self.r2score_test.is_cuda:
+            r2score_test = self.r2score_test.detach().cpu().numpy()
+        else:
+            r2score_test = self.r2score_test.detach().numpy()
+
+        return r2score_train, r2score_test
 
     def get_average_loss(self):
         """Returns average loss."""

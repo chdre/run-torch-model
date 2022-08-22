@@ -101,7 +101,7 @@ def create_dataloader(features, targets, batch_size, train_size=0.8,
     dataloader_train = data.DataLoader(train, batch_size=batch_size, **kwargs)
 
     # Settings shuffle to False for test (and validation)
-    if kwargs['shuffle']:
+    if 'shuffle' not in kwargs:
         kwargs['shuffle'] = False
     dataloader_test = data.DataLoader(test, batch_size=batch_size, **kwargs)
 
